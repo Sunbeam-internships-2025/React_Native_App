@@ -1,5 +1,3 @@
-
-
 // import React, { useEffect, useState } from 'react';
 // import { View, Text, FlatList, StyleSheet, ActivityIndicator, Dimensions } from 'react-native';
 // import axios from 'axios';
@@ -147,34 +145,54 @@
 //   },
 // });
 
-
-
-
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, Dimensions, Platform } from 'react-native';
-import axios from 'axios';
-
-const screenHeight = Dimensions.get('window').height;
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  Dimensions,
+  Platform,
+} from "react-native";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+const screenHeight = Dimensions.get("window").height;
 
 // Use correct IP for Android device / localhost for iOS
 const API_URL =
-  Platform.OS === 'android'
-    ? '/student/marks'
-    : 'http://localhost:1111/student/marks';
+  Platform.OS === "android"
+    ? "http://192.168.1.10:7777/student/marks"
+    : "http://localhost:7777/student/marks";
 
 const StudentMarks = () => {
   const [marks, setMarks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     const fetchMarks = async () => {
       try {
-        const response = await axios.get(API_URL);
+        const token = await AsyncStorage.getItem("token");
+        if (!token) {
+          setErrorMsg("No token found. Please login again.");
+          setLoading(false);
+          return;
+        }
+
+        const response = await axios.get(API_URL, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        // console.log("response:: ", response);
         setMarks(response.data.data || []);
       } catch (error) {
-        console.error('Error fetching marks:', error.message);
-        setErrorMsg('Network Error. Check your server and IP address.');
+        console.error("Error fetching marks:", error.message);
+        setErrorMsg(
+          "Network Error or Unauthorized. Check your login or token."
+        );
       } finally {
         setLoading(false);
       }
@@ -182,6 +200,23 @@ const StudentMarks = () => {
 
     fetchMarks();
   }, []);
+
+  // useEffect(() => {
+  //   const fetchMarks = async () => {
+  //     try {
+  //       const response = await axios.get(API_URL);
+  //       console.log("response:: ", response)
+  //       setMarks(response.data.data || []);
+  //     } catch (error) {
+  //       console.error("Error fetching marks:", error.message);
+  //       setErrorMsg("Network Error. Check your server and IP address.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchMarks();
+  // }, []);
 
   if (loading) {
     return (
@@ -195,20 +230,22 @@ const StudentMarks = () => {
   if (errorMsg) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={[styles.loadingText, { color: 'red' }]}>{errorMsg}</Text>
+        <Text style={[styles.loadingText, { color: "red" }]}>{errorMsg}</Text>
       </View>
     );
   }
 
   const renderItem = ({ item, index }) => (
-    <View style={[styles.row, index % 2 === 0 ? styles.rowEven : styles.rowOdd]}>
-      <Text style={styles.cell}>{item.student_name || '-'}</Text>
-      <Text style={styles.cell}>{item.course_name || '-'}</Text>
-      <Text style={styles.cell}>{item.module_name || '-'}</Text>
-      <Text style={styles.cell}>{item.theory_marks ?? '-'}</Text>
-      <Text style={styles.cell}>{item.lab_marks ?? '-'}</Text>
-      <Text style={styles.cell}>{item.IA_1 ?? '-'}</Text>
-      <Text style={styles.cell}>{item.IA_2 ?? '-'}</Text>
+    <View
+      style={[styles.row, index % 2 === 0 ? styles.rowEven : styles.rowOdd]}
+    >
+      <Text style={styles.cell}>{item.student_name || "-"}</Text>
+      <Text style={styles.cell}>{item.course_name || "-"}</Text>
+      <Text style={styles.cell}>{item.module_name || "-"}</Text>
+      <Text style={styles.cell}>{item.theory_marks ?? "-"}</Text>
+      <Text style={styles.cell}>{item.lab_marks ?? "-"}</Text>
+      <Text style={styles.cell}>{item.IA_1 ?? "-"}</Text>
+      <Text style={styles.cell}>{item.IA_2 ?? "-"}</Text>
     </View>
   );
 
@@ -246,34 +283,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#f8fafc',
-    alignItems: 'center',
+    backgroundColor: "#f8fafc",
+    alignItems: "center",
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   loadingText: {
     marginTop: 8,
     fontSize: 16,
-    color: '#444b57ff',
-    fontWeight: '500',
-    textAlign: 'center',
+    color: "#444b57ff",
+    fontWeight: "500",
+    textAlign: "center",
   },
   title: {
     fontSize: 26,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
-    color: '#1e293b',
-    textAlign: 'center',
+    color: "#1e293b",
+    textAlign: "center",
   },
   table: {
-    width: '100%',
+    width: "100%",
     maxWidth: 800,
     borderRadius: 8,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
+    overflow: "hidden",
+    backgroundColor: "#fff",
     elevation: 2,
     flex: 1,
   },
@@ -281,33 +318,33 @@ const styles = StyleSheet.create({
     maxHeight: screenHeight * 0.7,
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
     borderBottomWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: "#e2e8f0",
     paddingVertical: 12,
   },
   rowEven: {
-    backgroundColor: '#f9fafb',
+    backgroundColor: "#f9fafb",
   },
   rowOdd: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   headerRow: {
-    backgroundColor: '#545b67ff',
+    backgroundColor: "#545b67ff",
   },
   cell: {
     flex: 1,
     paddingHorizontal: 8,
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 11,
-    color: '#1e293b',
+    color: "#1e293b",
   },
   headerCell: {
     flex: 1,
     paddingHorizontal: 5,
-    textAlign: 'center',
-    fontWeight: '700',
-    color: '#fff',
+    textAlign: "center",
+    fontWeight: "700",
+    color: "#fff",
     fontSize: 14,
   },
 });
