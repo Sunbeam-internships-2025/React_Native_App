@@ -169,7 +169,7 @@ import Toast from "react-native-toast-message";
 // Use correct IP for your environment
 const API_URL =
   Platform.OS === "android"
-    ? "http://192.168.1.10:7777"
+    ? ""
     : "http://localhost:7777";
 
 const StudentLogin = ({ navigation, setStudent, setRole }) => {

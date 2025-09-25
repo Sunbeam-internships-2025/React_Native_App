@@ -145,7 +145,7 @@ import Toast from "react-native-toast-message";
 
 const API_URL =
   Platform.OS === "android"
-    ? "http://192.168.1.10:7777/student/register" // your PC IP
+    ? "" // your PC IP
     : "http://localhost:7777/student/register";
 
 const StudentRegister = () => {

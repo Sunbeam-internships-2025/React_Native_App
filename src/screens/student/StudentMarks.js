@@ -162,7 +162,7 @@ const screenHeight = Dimensions.get("window").height;
 // Use correct IP for Android device / localhost for iOS
 const API_URL =
   Platform.OS === "android"
-    ? "http://192.168.1.10:7777/student/marks"
+    ? ""
     : "http://localhost:7777/student/marks";
 
 const StudentMarks = () => {
